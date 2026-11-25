@@ -24,6 +24,9 @@ export function BGMProvider({ children }) {
   const synthMasterGainRef = useRef(null);
   const chordStepRef = useRef(0);
   const mp3AvailableRef = useRef(true);
+  const userPausedRef = useRef(false);
+  const isPlayingRef = useRef(false);
+  const cleanupGestureListenersRef = useRef(null);
 
   const stopSynth = useCallback(() => {
     if (synthLoopRef.current) {
@@ -68,7 +71,7 @@ export function BGMProvider({ children }) {
   }, []);
 
   const startSynth = useCallback(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined' || userPausedRef.current) return false;
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return false;
 
@@ -102,15 +105,83 @@ export function BGMProvider({ children }) {
       }
     }, 3200);
 
+    isPlayingRef.current = true;
     setUsingFallback(true);
     setIsPlaying(true);
     setIsMuted(false);
+    cleanupGestureListenersRef.current?.();
     return true;
   }, [triggerChord]);
+
+  const fadeInAudio = useCallback((audio) => {
+    if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+    audio.volume = 0;
+    const duration = 3500;
+    const intervalTime = 50;
+    const steps = duration / intervalTime;
+    const targetVolume = 0.25;
+    const stepSize = targetVolume / steps;
+    let currentStep = 0;
+
+    fadeTimerRef.current = setInterval(() => {
+      if (!audioRef.current || userPausedRef.current) {
+        clearInterval(fadeTimerRef.current);
+        return;
+      }
+      currentStep += 1;
+      audio.volume = Math.min(targetVolume, audio.volume + stepSize);
+      if (currentStep >= steps || audio.volume >= targetVolume) {
+        audio.volume = targetVolume;
+        clearInterval(fadeTimerRef.current);
+      }
+    }, intervalTime);
+  }, []);
+
+  const attemptPlay = useCallback(
+    (allowSynthFallback = true) => {
+      if (userPausedRef.current || isPlayingRef.current) return;
+
+      const audio = audioRef.current;
+      if (audio && mp3AvailableRef.current) {
+        audio
+          .play()
+          .then(() => {
+            if (userPausedRef.current) {
+              audio.pause();
+              return;
+            }
+            isPlayingRef.current = true;
+            setUsingFallback(false);
+            setIsPlaying(true);
+            setIsMuted(false);
+            fadeInAudio(audio);
+            cleanupGestureListenersRef.current?.();
+          })
+          .catch((err) => {
+            // Browser autoplay policy blocked unmuted playback before first tap; keep mp3 enabled for gesture unlock
+            if (err?.name === 'NotAllowedError') {
+              return;
+            }
+            mp3AvailableRef.current = false;
+            if (allowSynthFallback) {
+              startSynth();
+            }
+          });
+        return;
+      }
+
+      if (allowSynthFallback) {
+        startSynth();
+      }
+    },
+    [fadeInAudio, startSynth]
+  );
 
   useEffect(() => {
     const audio = new Audio('/audio/bgm.mp3');
     audio.loop = true;
+    audio.preload = 'auto';
+    audio.playsInline = true;
     audio.volume = 0;
     audioRef.current = audio;
 
@@ -120,7 +191,32 @@ export function BGMProvider({ children }) {
     };
     audio.addEventListener('error', handleError);
 
+    const handleFirstGesture = (event) => {
+      if (event.target instanceof Element && event.target.closest('[data-bgm-toggle="true"]')) {
+        return;
+      }
+      attemptPlay(true);
+    };
+
+    const removeGestureListeners = () => {
+      window.removeEventListener('pointerdown', handleFirstGesture, true);
+      window.removeEventListener('touchstart', handleFirstGesture, true);
+      window.removeEventListener('click', handleFirstGesture, true);
+      window.removeEventListener('keydown', handleFirstGesture, true);
+    };
+    cleanupGestureListenersRef.current = removeGestureListeners;
+
+    window.addEventListener('pointerdown', handleFirstGesture, { capture: true, passive: true });
+    window.addEventListener('touchstart', handleFirstGesture, { capture: true, passive: true });
+    window.addEventListener('click', handleFirstGesture, { capture: true });
+    window.addEventListener('keydown', handleFirstGesture, { capture: true });
+
+    // Try playing immediately on page load; if autoplay is blocked, first tap anywhere unlocks it
+    attemptPlay(false);
+
     return () => {
+      removeGestureListeners();
+      cleanupGestureListenersRef.current = null;
       audio.removeEventListener('error', handleError);
       if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
       if (audioRef.current) {
@@ -133,74 +229,42 @@ export function BGMProvider({ children }) {
         synthCtxRef.current = null;
       }
     };
-  }, [stopSynth]);
-
-  const fadeInAudio = (audio) => {
-    if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
-    audio.volume = 0;
-    const duration = 3500;
-    const intervalTime = 50;
-    const steps = duration / intervalTime;
-    const targetVolume = 0.25;
-    const stepSize = targetVolume / steps;
-    let currentStep = 0;
-
-    fadeTimerRef.current = setInterval(() => {
-      if (!audioRef.current) {
-        clearInterval(fadeTimerRef.current);
-        return;
-      }
-      currentStep += 1;
-      audio.volume = Math.min(targetVolume, audio.volume + stepSize);
-      if (currentStep >= steps || audio.volume >= targetVolume) {
-        audio.volume = targetVolume;
-        clearInterval(fadeTimerRef.current);
-      }
-    }, intervalTime);
-  };
+  }, [attemptPlay, stopSynth]);
 
   const playBGM = useCallback(() => {
-    if (isPlaying) return;
-
-    const audio = audioRef.current;
-    if (audio && mp3AvailableRef.current) {
-      audio
-        .play()
-        .then(() => {
-          setUsingFallback(false);
-          setIsPlaying(true);
-          setIsMuted(false);
-          fadeInAudio(audio);
-        })
-        .catch(() => {
-          mp3AvailableRef.current = false;
-          startSynth();
-        });
-      return;
-    }
-
-    startSynth();
-  }, [isPlaying, startSynth]);
+    if (userPausedRef.current || isPlayingRef.current) return;
+    attemptPlay(true);
+  }, [attemptPlay]);
 
   const toggleMute = useCallback(() => {
     const audio = audioRef.current;
 
     if (isMuted) {
+      userPausedRef.current = false;
+      cleanupGestureListenersRef.current?.();
+
       if (audio && mp3AvailableRef.current && !usingFallback) {
         audio.volume = 0.25;
         audio
           .play()
           .then(() => {
+            isPlayingRef.current = true;
             setIsMuted(false);
             setIsPlaying(true);
           })
-          .catch(() => {
-            startSynth();
+          .catch((err) => {
+            if (err?.name !== 'NotAllowedError') {
+              mp3AvailableRef.current = false;
+              startSynth();
+            }
           });
       } else {
         startSynth();
       }
     } else {
+      userPausedRef.current = true;
+      isPlayingRef.current = false;
+      cleanupGestureListenersRef.current?.();
       if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
       if (audio) audio.pause();
       stopSynth();

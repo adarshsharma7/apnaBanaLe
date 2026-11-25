@@ -113,6 +113,7 @@ export default function Home() {
 
           <motion.button
             type="button"
+            data-bgm-toggle="true"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.94 }}
             onClick={handleMusicToggle}

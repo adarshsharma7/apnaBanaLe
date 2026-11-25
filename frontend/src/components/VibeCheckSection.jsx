@@ -49,7 +49,7 @@ const QUESTIONS = [
       },
       {
         label: 'Tum choose karo Adarsh 🙈',
-        reply: 'Done! Fir toh ekdum chill & introvert-friendly step main hi plan karunga 🙈💖',
+        reply: 'Jo hukum Maalkin ji! Fir toh ekdum chill & introvert-friendly step main hi plan karunga 👑🙈💖',
         mood: 'shy',
       },
     ],

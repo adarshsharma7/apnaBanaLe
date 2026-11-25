@@ -91,6 +91,12 @@ const TRAIT_CARDS = [
 
 const TERMS_CLAUSES = [
   {
+    emoji: '👑',
+    featured: true,
+    title: 'Maalkin Supremacy Clause (Rule #1)',
+    desc: 'Aakhir aap meri Maalkin ho — toh aapka har hukum sir-aankhon par! Aapki saari baatein bina behas maanna mera param kartavya hai (bas thoda sa chhedne ka haq hamesha rakhunga 😂🙇‍♂️).',
+  },
+  {
     emoji: '📚',
     title: '12th Boards Priority Clause',
     desc: 'Padhai aur 12th class ke boards hamesha first priority — par study breaks mein hassane aur stress bhagane ki 100% guarantee meri (lame jokes & Bandrr teasing 24×7 free).',
@@ -581,7 +587,7 @@ export default function StorySection({ onProceed, updateCompanion }) {
           borderClass="bg-emerald-400"
           onVisible={() =>
             updateCompanion(
-              'Emotional moment khatam! Ab wapas full comedy & T&C mode ON 😂📜',
+              'Emotional moment khatam! Ab wapas full comedy mode — aur Rule #1 zaroor padhna Maalkin ji! 👑😂',
               'excited'
             )
           }
@@ -591,14 +597,18 @@ export default function StorySection({ onProceed, updateCompanion }) {
             Official Terms &amp; Conditions (12th Class Special 😂)
           </h2>
           <p className="text-xs text-gray-500 font-medium mb-4">
-            Aage badhne se pehle yeh 4 cute rules padh lena, Manshika ji:
+            Aage badhne se pehle yeh 5 cute rules padh lena, Manshika (Maalkin) ji 👑:
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {TERMS_CLAUSES.map((clause) => (
               <div
                 key={clause.title}
-                className="p-3.5 rounded-2xl bg-white/80 border border-blush-100 hover:border-blush-200 transition-colors"
+                className={`p-3.5 rounded-2xl border transition-colors ${
+                  clause.featured
+                    ? 'sm:col-span-2 bg-gradient-to-r from-amber-50/90 via-blush-50/90 to-white border-amber-200 shadow-sm'
+                    : 'bg-white/80 border-blush-100 hover:border-blush-200'
+                }`}
               >
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-lg">{clause.emoji}</span>

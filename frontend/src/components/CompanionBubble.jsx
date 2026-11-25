@@ -24,7 +24,7 @@ const POKE_REPLIES = [
   'Haanji Manshika ji, bolo kya hua? 🥰',
   'Itna tap karogi toh main sharma jaunga... 🙈✨',
   '15 October wale birthday gift mein se ek chocolate kaat lunga agar aur tang kiya! 🍫😜',
-  'Yashika ko complain kar dunga agar zyada tang kiya toh! 😂',
+  'Ji Maalkin! Hukum kijiye — aapki har baat maanna mera kartavya hai 🙇‍♂️👑😂',
 ];
 
 export default function CompanionBubble({ message, mood = 'cute', onPoke }) {

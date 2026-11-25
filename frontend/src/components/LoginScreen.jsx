@@ -66,8 +66,18 @@ const VALID_USERS = [
   'bandarr',
   'bandr',
   'bandrr',
+  'bandar ji',
+  'bandr ji',
+  'bandrr ji',
   'manku',
   'manshi',
+  'maalkin',
+  'malkin',
+  'maalkin ji',
+  'malkin ji',
+  'maalkinji',
+  'malkinji',
+  'malikin',
 ];
 
 const VALID_PASSWORDS = [
@@ -138,7 +148,7 @@ export default function LoginScreen({ onLoginSuccess, updateCompanion }) {
 
     if (!VALID_USERS.includes(cleanUser)) {
       triggerError(
-        'Naam check karo — "Manshika", "Riya" ya apna cute nickname likho 🌸',
+        'Naam thoda check karo — apna naam ya jo pyaar se bulata hu woh likho 😉🌸',
         'Apna pyaara sa naam toh sahi likho pehle! 🥺',
         'cute'
       );
@@ -226,7 +236,7 @@ export default function LoginScreen({ onLoginSuccess, updateCompanion }) {
           {/* Name Input */}
           <div>
             <label htmlFor="manshika-name" className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">
-              Step 2: Aapka Shubh Naam? 🌸
+              Step 2: Aapka Naam ya Jo Main Aapko Bulata Hu? 🌸
             </label>
             <input
               id="manshika-name"
@@ -236,7 +246,7 @@ export default function LoginScreen({ onLoginSuccess, updateCompanion }) {
                 setUsername(e.target.value);
                 if (error) setError('');
               }}
-              placeholder="e.g. Manshika Sharma..."
+              placeholder="Naam ya cute nickname... sab chalega 😉"
               aria-invalid={Boolean(error)}
               className="w-full px-4 py-3 bg-white/85 border border-blush-200 rounded-2xl outline-none focus:border-blush-500 focus:ring-2 focus:ring-blush-200 transition-all font-medium text-base placeholder-gray-400 text-gray-700"
             />

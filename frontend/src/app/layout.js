@@ -16,7 +16,7 @@ const playfair = Playfair_Display({
 
 export const metadata = {
   title: "Suno na, Manshika ji... 🌸✨",
-  description: "6 din ki chhoti si pyaari kahani — sirf aapke liye ✨",
+  description: "5 din ki chhoti si pyaari kahani — sirf aapke liye ✨",
 };
 
 export default function RootLayout({ children }) {

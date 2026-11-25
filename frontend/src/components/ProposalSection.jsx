@@ -126,7 +126,7 @@ export default function ProposalSection({
         </h2>
 
         <p className="text-gray-700 font-semibold text-base sm:text-lg mb-3 leading-relaxed">
-          Sirf 6 din hue hain, par aapse baat karke sach mein bahut accha lagta hai... Kya hum is pyaari si shuruwat ko official banayein?{' '}
+          Sirf 5 din hue hain, par aapse baat karke sach mein bahut accha lagta hai... Kya hum is pyaari si shuruwat ko official banayein?{' '}
           <span className="text-blush-600 font-bold">Will you be mine? 💖</span>
         </p>
 

@@ -66,7 +66,7 @@ const TRAIT_CARDS = [
     title: 'Dil Ki Bahut Acchi',
     subtitle: 'Tap to reveal ✨',
     backText:
-      'Aajkal log bas dikhawa karte hain, par 6 din ki chats mein hi samajh aa gaya ki aapka dil kitna saaf aur caring hai. Itni simplicity aur warmth aajkal bahut kam logon mein milti hai yaar.',
+      'Aajkal log bas dikhawa karte hain, par 5 din ki chats mein hi samajh aa gaya ki aapka dil kitna saaf aur caring hai. Itni simplicity aur warmth aajkal bahut kam logon mein milti hai yaar.',
     companion: 'Sach me yaar, itne saaf dil wale log aajkal kahan milte hain 🤍✨',
   },
   {
@@ -264,7 +264,7 @@ export default function StorySection({ onProceed, updateCompanion }) {
           </div>
         </FadeInCard>
 
-        {/* Card 2: Funny 6-Day Wi-Fi Connection */}
+        {/* Card 2: Funny 5-Day Wi-Fi Connection */}
         <FadeInCard
           borderClass="bg-blush-400"
           onVisible={() =>
@@ -276,11 +276,11 @@ export default function StorySection({ onProceed, updateCompanion }) {
         >
           <span className="text-3xl">📶</span>
           <h2 className="text-xl sm:text-2xl font-bold font-serif text-blush-600 mt-3 mb-2">
-            Sirf 6 Din... Full Wi-Fi Connection! 😂✨
+            Sirf 5 Din... Full Wi-Fi Connection! 😂✨
           </h2>
           <p className="text-gray-700 font-medium text-base leading-relaxed">
             Dekho, main yeh filmy dialogue bilkul nahi bolunga ki{' '}
-            <span className="italic">&ldquo;janmo-janmo ka saath hai&rdquo;</span> — 6 din mein itni filmy over-acting karunga toh aap khud hass-hass ke bologi &ldquo;thoda slow chalo hero!&rdquo; 🤣
+            <span className="italic">&ldquo;janmo-janmo ka saath hai&rdquo;</span> — 5 din mein itni filmy over-acting karunga toh aap khud hass-hass ke bologi &ldquo;thoda slow chalo hero!&rdquo; 🤣
           </p>
           <p className="text-gray-700 font-medium text-base leading-relaxed mt-3">
             Abhi tak hum ek-doosre se real mein mile bhi nahi hain, aur na hi maine aapki aawaz suni hai — sirf photo dekhi hai aur Instagram DMs mein baatein hui hain. Matlab humara poora bond abhi pure Wi-Fi, memes aur emojis par chal raha hai... aur phir bhi itni smile aur apna sa feel hona kamaal toh hai na? 😄💛
@@ -568,7 +568,7 @@ export default function StorySection({ onProceed, updateCompanion }) {
               Manshika, ek sach yeh hai ki <strong>mera past kuch aisa raha hai jiski wajah se mere liye kisi par bhi trust karna bilkul aasaan nahi hai.</strong> Main jaldi kisi par bharosa nahi kar paaunga, aur khud ko open karne mein bahut sochta hu — aur mujhe pata hai ki aapka past bhi kuch aisa hi raha hai, isliye main aapki feelings ko aur bhi zyada samajh sakta hu.
             </p>
             <p>
-              Par pata nahi kyun, sirf 6 din mein aapki baatein, aapki simplicity, aur aapka saaf dil dekh kar woh dar thoda kam lagne laga. <strong>Main sach mein aap par trust kar raha hu</strong> — aur mere jaise insaan ke liye yeh bolna bahut badi baat hai.
+              Par pata nahi kyun, sirf 5 din mein aapki baatein, aapki simplicity, aur aapka saaf dil dekh kar woh dar thoda kam lagne laga. <strong>Main sach mein aap par trust kar raha hu</strong> — aur mere jaise insaan ke liye yeh bolna bahut badi baat hai.
             </p>
             <p>
               Mujhe yeh bhi pata hai ki aap thodi introvert ho aur aapko bhi time lagta hai, isliye main aapko kabhi rush nahi karunga. Bas aap jaise ho waise hi rehna — calm, genuine, aur thodi si Bandrr 🐒.

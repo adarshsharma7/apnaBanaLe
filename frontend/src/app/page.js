@@ -344,7 +344,7 @@ export default function Home() {
                   </h1>
 
                   <p className="text-gray-700 font-semibold text-base leading-relaxed">
-                    Friday 20 November ke pehle Instagram message se lekar aaj tak — bina mile aur bina aawaz sune hi yeh 6 din mere liye bahut special ban gaye, <strong>Manshika ji (Bandrr 🐒)</strong>!
+                    Friday 20 November ke pehle Instagram message se lekar aaj tak — bina mile aur bina aawaz sune hi yeh 5 din mere liye bahut special ban gaye, <strong>Manshika ji (Bandrr 🐒)</strong>!
                   </p>
 
                   {/* Screenshot-worthy Official Pass */}

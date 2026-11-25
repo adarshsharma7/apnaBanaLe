@@ -12,7 +12,7 @@ const NO_LABELS = [
   'Pakka? 🥺',
   'Bandrr pls 🐒',
   '12th exam se tough hai 😂',
-  'Yashika ko bata dunga 😂',
+  'No ka option hi nahi hai 😜',
   'Button nahi maan raha 😅',
 ];
 
@@ -20,7 +20,7 @@ const FUNNY_REMARKS = [
   'Arey! No kyun daba rahi ho Bandrr 🥺... lagta hai button khud bhaag gaya! 😅',
   'Kahan bhaag rahi ho Manshika ji? Yes wala button zyada cute hai 😉🌸',
   'Agar No dabaya toh 15 October ki birthday treat cancel kar dunga! 🎂😜',
-  'Yashika ko bol dunga agar No par click kiya toh! 😂🐒',
+  'Arey Bandrr, No pakadne ka competition chal raha hai kya? Yes daba do ab! 😂🐒',
   'Dekho button bhi chahta hai ki aap Yes bol do! 🙈💖',
   'Introvert log aise hi sharma ke No try karte hain kya? Hehe ab Yes daba do! 🥰',
 ];
@@ -58,7 +58,7 @@ export default function ProposalSection({
       left: `${randomX}px`,
       top: `${randomY}px`,
       zIndex: 45,
-      transition: 'left 0.14s ease-out, top 0.14s ease-out',
+      transition: 'left 0.22s cubic-bezier(0.22, 1, 0.36, 1), top 0.22s cubic-bezier(0.22, 1, 0.36, 1)',
     });
 
     const next = noAttempts + 1;
@@ -126,7 +126,7 @@ export default function ProposalSection({
         </h2>
 
         <p className="text-gray-700 font-semibold text-base sm:text-lg mb-3 leading-relaxed">
-          Sirf 5 din hue hain, par aapse baat karke sach mein bahut accha lagta hai... Kya hum is pyaari si shuruwat ko official banayein?{' '}
+          Sirf 6 din hue hain, par aapse baat karke sach mein bahut accha lagta hai... Kya hum is pyaari si shuruwat ko official banayein?{' '}
           <span className="text-blush-600 font-bold">Will you be mine? 💖</span>
         </p>
 
@@ -157,9 +157,45 @@ export default function ProposalSection({
               handleNoDodge();
             }}
             style={noPosition || undefined}
-            className="px-5 py-3.5 bg-white hover:bg-gray-50 text-gray-500 font-bold text-sm rounded-2xl border border-gray-200 shadow-sm cursor-pointer max-w-[calc(100vw-32px)] text-center"
+            className={`relative px-5 py-3.5 font-bold text-sm rounded-2xl cursor-pointer max-w-[calc(100vw-32px)] text-center transition-colors ${
+              noAttempts > 0
+                ? 'bg-white/95 border-2 border-blush-400 text-gray-500 shadow-lg ring-4 ring-blush-200/80'
+                : 'bg-white hover:bg-gray-50 text-gray-500 border border-gray-200 shadow-sm'
+            }`}
           >
-            {currentNoLabel}
+            {noAttempts > 0 && (
+              <>
+                <motion.span
+                  key={`ring-${noAttempts}`}
+                  initial={{ scale: 0.92, opacity: 0.95 }}
+                  animate={{ scale: 1.45, opacity: 0 }}
+                  transition={{ duration: 0.65, ease: 'easeOut' }}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-blush-400"
+                />
+                <motion.span
+                  key={`spark-l-${noAttempts}`}
+                  initial={{ scale: 0.4, opacity: 1, x: 0, y: 0 }}
+                  animate={{ scale: 1.15, opacity: 0, x: -10, y: -12 }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -top-2 -left-2 text-xs"
+                >
+                  ✨
+                </motion.span>
+                <motion.span
+                  key={`spark-r-${noAttempts}`}
+                  initial={{ scale: 0.4, opacity: 1, x: 0, y: 0 }}
+                  animate={{ scale: 1.15, opacity: 0, x: 10, y: 12 }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -bottom-2 -right-2 text-xs"
+                >
+                  ✨
+                </motion.span>
+              </>
+            )}
+            <span className="relative z-10">{currentNoLabel}</span>
           </button>
         </div>
       </motion.div>

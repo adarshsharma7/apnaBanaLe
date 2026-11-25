@@ -1,8 +1,30 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { ChevronDown, Sparkles, ArrowRight } from 'lucide-react';
+import confetti from 'canvas-confetti';
+import SmartPhoto, {
+  ADARSH_POLAROID_PHOTOS,
+  MANSHIKA_POLAROID_PHOTOS,
+} from './SmartPhoto';
+
+const REVEAL_HEARTS = [
+  { emoji: '💖', x: -165, y: -155, rotate: -22, delay: 0.04, duration: 1.9 },
+  { emoji: '🌸', x: 165, y: -150, rotate: 24, delay: 0.08, duration: 2.0 },
+  { emoji: '💕', x: -120, y: -195, rotate: -14, delay: 0.12, duration: 2.1 },
+  { emoji: '✨', x: 120, y: -190, rotate: 18, delay: 0.1, duration: 1.85 },
+  { emoji: '🤍', x: -195, y: -65, rotate: -28, delay: 0.15, duration: 2.2 },
+  { emoji: '🦋', x: 195, y: -70, rotate: 20, delay: 0.16, duration: 2.15 },
+  { emoji: '💖', x: -45, y: -215, rotate: -10, delay: 0.06, duration: 2.25 },
+  { emoji: '🌸', x: 45, y: -210, rotate: 12, delay: 0.09, duration: 2.2 },
+  { emoji: '💕', x: -155, y: 75, rotate: -18, delay: 0.18, duration: 2.0 },
+  { emoji: '✨', x: 155, y: 70, rotate: 22, delay: 0.17, duration: 2.05 },
+  { emoji: '🤍', x: -85, y: -135, rotate: -16, delay: 0.22, duration: 2.3 },
+  { emoji: '💖', x: 85, y: -135, rotate: 16, delay: 0.2, duration: 2.3 },
+  { emoji: '🌸', x: -20, y: -165, rotate: -8, delay: 0.24, duration: 2.35 },
+  { emoji: '✨', x: 25, y: -170, rotate: 10, delay: 0.26, duration: 2.35 },
+];
 
 function FadeInCard({ children, onVisible, borderClass = 'bg-blush-400' }) {
   const ref = useRef(null);
@@ -44,7 +66,7 @@ const TRAIT_CARDS = [
     title: 'Dil Ki Bahut Acchi',
     subtitle: 'Tap to reveal ✨',
     backText:
-      'Aajkal log bas dikhawa karte hain, par 5 din ki chats mein hi samajh aa gaya ki aapka dil kitna saaf aur caring hai. Itni simplicity aur warmth aajkal bahut kam logon mein milti hai yaar.',
+      'Aajkal log bas dikhawa karte hain, par 6 din ki chats mein hi samajh aa gaya ki aapka dil kitna saaf aur caring hai. Itni simplicity aur warmth aajkal bahut kam logon mein milti hai yaar.',
     companion: 'Sach me yaar, itne saaf dil wale log aajkal kahan milte hain 🤍✨',
   },
   {
@@ -93,6 +115,7 @@ const TERMS_CLAUSES = [
 export default function StorySection({ onProceed, updateCompanion }) {
   const [revealedIds, setRevealedIds] = useState([]);
   const [wahWahDone, setWahWahDone] = useState(false);
+  const [photoRevealed, setPhotoRevealed] = useState(false);
 
   const handleFlip = (card) => {
     setRevealedIds((prev) => (prev.includes(card.id) ? prev : [...prev, card.id]));
@@ -235,7 +258,7 @@ export default function StorySection({ onProceed, updateCompanion }) {
           </div>
         </FadeInCard>
 
-        {/* Card 2: Funny 5-Day Wi-Fi Connection */}
+        {/* Card 2: Funny 6-Day Wi-Fi Connection */}
         <FadeInCard
           borderClass="bg-blush-400"
           onVisible={() =>
@@ -247,11 +270,11 @@ export default function StorySection({ onProceed, updateCompanion }) {
         >
           <span className="text-3xl">📶</span>
           <h2 className="text-xl sm:text-2xl font-bold font-serif text-blush-600 mt-3 mb-2">
-            Sirf 5 Din... Full Wi-Fi Connection! 😂✨
+            Sirf 6 Din... Full Wi-Fi Connection! 😂✨
           </h2>
           <p className="text-gray-700 font-medium text-base leading-relaxed">
             Dekho, main yeh filmy dialogue bilkul nahi bolunga ki{' '}
-            <span className="italic">&ldquo;janmo-janmo ka saath hai&rdquo;</span> — 5 din mein itni filmy over-acting karunga toh aap khud hass-hass ke bologi &ldquo;thoda slow chalo hero!&rdquo; 🤣
+            <span className="italic">&ldquo;janmo-janmo ka saath hai&rdquo;</span> — 6 din mein itni filmy over-acting karunga toh aap khud hass-hass ke bologi &ldquo;thoda slow chalo hero!&rdquo; 🤣
           </p>
           <p className="text-gray-700 font-medium text-base leading-relaxed mt-3">
             Abhi tak hum ek-doosre se real mein mile bhi nahi hain, aur na hi maine aapki aawaz suni hai — sirf photo dekhi hai aur Instagram DMs mein baatein hui hain. Matlab humara poora bond abhi pure Wi-Fi, memes aur emojis par chal raha hai... aur phir bhi itni smile aur apna sa feel hona kamaal toh hai na? 😄💛
@@ -262,6 +285,186 @@ export default function StorySection({ onProceed, updateCompanion }) {
             <span>Voice Heard: 0</span>
             <span>•</span>
             <span>Smile Count: 1000+ 😄</span>
+          </div>
+        </FadeInCard>
+
+        {/* Card 2.5: Tap-to-Reveal 2-Polaroid Card */}
+        <FadeInCard
+          borderClass="bg-rose-400"
+          onVisible={() =>
+            updateCompanion(
+              'Beech wale Tap to Reveal button par click karke dekho... ek chhota sa surprise hai! 🙈📸',
+              'shy'
+            )
+          }
+        >
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="text-3xl">📸</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-blush-50 text-blush-600 border border-blush-200">
+              Just Us • Polaroid Corner ✨
+            </span>
+          </div>
+
+          <h2 className="text-xl sm:text-2xl font-bold font-serif text-blush-600 mt-3 mb-1.5">
+            Abhi Mile Nahi, Par Photo Hi Kaafi Hai 📸✨
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 font-medium leading-relaxed">
+            Real mulakat abhi baaki hai — tab tak dekho kiski photo dekh kar hi smile aa jaati hai!
+          </p>
+
+          <div className="relative max-w-lg mx-auto mt-6">
+            {/* Bursting floating hearts & petals from behind on reveal */}
+            {photoRevealed && (
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-visible"
+              >
+                {REVEAL_HEARTS.map((item, idx) => (
+                  <motion.span
+                    key={idx}
+                    initial={{ opacity: 0, scale: 0.3, x: 0, y: 12, rotate: 0 }}
+                    animate={{
+                      opacity: [0, 1, 1, 0],
+                      scale: [0.4, 1.3, 1.1, 0.8],
+                      x: item.x,
+                      y: item.y,
+                      rotate: item.rotate,
+                    }}
+                    transition={{
+                      duration: item.duration,
+                      delay: item.delay,
+                      ease: 'easeOut',
+                    }}
+                    className="absolute text-xl sm:text-2xl select-none drop-shadow-sm"
+                  >
+                    {item.emoji}
+                  </motion.span>
+                ))}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 relative z-10">
+              {/* Left Polaroid: Adarsh */}
+              <motion.div
+                animate={
+                  photoRevealed
+                    ? { scale: [0.96, 1.03, 1], y: [6, -4, 0] }
+                    : {}
+                }
+                transition={{ duration: 0.65, ease: 'easeOut' }}
+                className="bg-white p-3 pb-4 rounded-2xl border border-blush-100 shadow-md sm:-rotate-2 hover:rotate-0 transition-transform duration-300"
+              >
+                <div className="aspect-[4/5] rounded-xl overflow-hidden bg-blush-50 relative">
+                  <div
+                    className={`w-full h-full transition-all duration-700 ${
+                      photoRevealed ? 'blur-0 scale-100' : 'blur-md scale-105'
+                    }`}
+                  >
+                    <SmartPhoto
+                      sources={ADARSH_POLAROID_PHOTOS}
+                      alt="Adarsh"
+                      className="object-cover object-[52%_34%] scale-[1.24] origin-[52%_36%] brightness-[0.97] contrast-[0.96]"
+                      fallbackEmoji="😎"
+                    />
+                  </div>
+                </div>
+                <p className="mt-3 text-xs font-bold text-gray-700 text-center">
+                  {photoRevealed
+                    ? 'Aapki ek smile ke liye hamesha ready 🤍'
+                    : 'Tap karke dekho kaun wait kar raha hai 👀'}
+                </p>
+              </motion.div>
+
+              {/* Right Polaroid: Manshika */}
+              <motion.div
+                animate={
+                  photoRevealed
+                    ? { scale: [0.96, 1.03, 1], y: [6, -4, 0] }
+                    : {}
+                }
+                transition={{ duration: 0.65, delay: 0.08, ease: 'easeOut' }}
+                className="bg-white p-3 pb-4 rounded-2xl border border-blush-200 shadow-md sm:rotate-2 hover:rotate-0 transition-transform duration-300"
+              >
+                <div className="aspect-[4/5] rounded-xl overflow-hidden bg-blush-50 relative">
+                  <div
+                    className={`w-full h-full transition-all duration-700 ${
+                      photoRevealed ? 'blur-0 scale-100' : 'blur-md scale-105'
+                    }`}
+                  >
+                    <SmartPhoto
+                      sources={MANSHIKA_POLAROID_PHOTOS}
+                      alt="Manshika"
+                      className="object-cover object-[42%_50%]"
+                      fallbackEmoji="🌸"
+                    />
+                  </div>
+
+                  {photoRevealed && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.7 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.25 }}
+                      className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-white/90 text-blush-600 text-[10px] font-bold shadow border border-blush-200"
+                    >
+                      ✨ Cute!
+                    </motion.div>
+                  )}
+                </div>
+                <p className="mt-3 text-xs font-bold text-blush-600 text-center">
+                  {photoRevealed
+                    ? 'Saadgi aur khoobsurti ka best combination 🌸💖'
+                    : 'Meri sabse favourite photo 🙈✨'}
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Glowing center heart connecting both Polaroids once revealed */}
+            <AnimatePresence>
+              {photoRevealed && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0, rotate: -20 }}
+                  animate={{ scale: [0, 1.3, 1], opacity: 1, rotate: 0 }}
+                  transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/95 border-2 border-blush-200 shadow-xl flex items-center justify-center"
+                >
+                  <span className="text-xl anim-heart-pulse">💖</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {!photoRevealed && (
+                <motion.div
+                  initial={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.18 }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                  className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/15 backdrop-blur-[2px]"
+                >
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.06 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={() => {
+                      setPhotoRevealed(true);
+                      confetti({
+                        particleCount: 55,
+                        spread: 75,
+                        origin: { y: 0.58 },
+                        colors: ['#f43f72', '#fb7195', '#fecdd8', '#c084fc', '#fff5f7'],
+                      });
+                      updateCompanion(
+                        'Hayee! Photo mein hi itni sundar ho Manshika ji — nazar na lage 🧿✨💖',
+                        'love'
+                      );
+                    }}
+                    className="px-6 py-3.5 rounded-full bg-gradient-to-r from-blush-500 to-blush-600 text-white font-bold text-sm shadow-xl border-2 border-white cursor-pointer flex items-center gap-2"
+                  >
+                    Tap to Reveal ✨📸
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </FadeInCard>
 
@@ -359,7 +562,7 @@ export default function StorySection({ onProceed, updateCompanion }) {
               Manshika, ek sach yeh hai ki <strong>mera past kuch aisa raha hai jiski wajah se mere liye kisi par bhi trust karna bilkul aasaan nahi hai.</strong> Main jaldi kisi par bharosa nahi kar paaunga, aur khud ko open karne mein bahut sochta hu — aur mujhe pata hai ki aapka past bhi kuch aisa hi raha hai, isliye main aapki feelings ko aur bhi zyada samajh sakta hu.
             </p>
             <p>
-              Par pata nahi kyun, sirf 5 din mein aapki baatein, aapki simplicity, aur aapka saaf dil dekh kar woh dar thoda kam lagne laga. <strong>Main sach mein aap par trust kar raha hu</strong> — aur mere jaise insaan ke liye yeh bolna bahut badi baat hai.
+              Par pata nahi kyun, sirf 6 din mein aapki baatein, aapki simplicity, aur aapka saaf dil dekh kar woh dar thoda kam lagne laga. <strong>Main sach mein aap par trust kar raha hu</strong> — aur mere jaise insaan ke liye yeh bolna bahut badi baat hai.
             </p>
             <p>
               Mujhe yeh bhi pata hai ki aap thodi introvert ho aur aapko bhi time lagta hai, isliye main aapko kabhi rush nahi karunga. Bas aap jaise ho waise hi rehna — calm, genuine, aur thodi si Bandrr 🐒.

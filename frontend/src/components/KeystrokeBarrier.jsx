@@ -2,19 +2,16 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Keyboard, Sparkles } from 'lucide-react';
+import { Lock, Sparkles } from 'lucide-react';
 
 const TARGET_WORDS = ['i', 'love', 'you', 'adarsh'];
 const TARGET_COMPACT = TARGET_WORDS.join('');
-const WORD_PILLS = ['I', 'LOVE', 'YOU', 'ADARSH'];
 
 export default function KeystrokeBarrier({ onUnlock, updateCompanion }) {
   const [typedText, setTypedText] = useState('');
   const [matchLength, setMatchLength] = useState(0);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
-  const [tapMode, setTapMode] = useState(false);
-  const [tappedWords, setTappedWords] = useState([]);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -53,17 +50,6 @@ export default function KeystrokeBarrier({ onUnlock, updateCompanion }) {
     setTimeout(() => {
       onUnlock();
     }, 2200);
-  };
-
-  const handleWordTap = (word, index) => {
-    if (isUnlocked) return;
-    if (index === tappedWords.length) {
-      const next = [...tappedWords, word];
-      setTappedWords(next);
-      setTypedText(next.join(' ').toLowerCase());
-    } else if (index > tappedWords.length) {
-      updateCompanion('Pehle order mein tap karo na Bandrr — ek ek word karke! 😜', 'teasing');
-    }
   };
 
   let runningOffset = 0;
@@ -169,59 +155,13 @@ export default function KeystrokeBarrier({ onUnlock, updateCompanion }) {
           </div>
         )}
 
-        {/* Fallback Tap Mode for shy/quick tapping */}
-        {!isUnlocked && (
-          <div className="mb-4">
-            <button
-              type="button"
-              onClick={() => setTapMode((prev) => !prev)}
-              className="text-xs font-semibold text-blush-500 hover:text-blush-600 inline-flex items-center gap-1.5 underline underline-offset-4 cursor-pointer"
-            >
-              <Keyboard className="w-3.5 h-3.5" />
-              {tapMode
-                ? 'Tap mode chhupao'
-                : 'Type nahi karna? 1-tap buttons use karo 🙈'}
-            </button>
-
-            <AnimatePresence>
-              {tapMode && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-3.5 flex flex-wrap justify-center gap-2 overflow-hidden"
-                >
-                  {WORD_PILLS.map((word, idx) => {
-                    const done = idx < tappedWords.length;
-                    return (
-                      <button
-                        key={word}
-                        type="button"
-                        onClick={() => handleWordTap(word, idx)}
-                        disabled={done}
-                        className={`px-4 py-2 rounded-xl font-bold text-xs sm:text-sm border transition-all cursor-pointer ${
-                          done
-                            ? 'bg-blush-500 text-white border-blush-500'
-                            : 'bg-white text-blush-600 border-blush-200 hover:bg-blush-50'
-                        }`}
-                      >
-                        {word}
-                      </button>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
-
         <div className="text-xs font-bold uppercase tracking-wider text-gray-400">
           {isUnlocked ? (
             <span className="text-blush-600 inline-flex items-center gap-1.5 text-sm">
               <Sparkles className="w-4 h-4" /> Unlocked! Ab main sawaal aa raha hai 💖
             </span>
           ) : (
-            <span>Box mein type karo ya 1-tap use karo ✨</span>
+            <span>Upar wale box mein type karo ✨</span>
           )}
         </div>
       </motion.div>

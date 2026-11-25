@@ -1,7 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const AVATAR_SOURCES = [
+  '/images/adarsh.jpeg',
+  '/images/adarsh.jpg',
+  '/images/adarsh.png',
+  '/images/adarsh.webp',
+];
 
 const MOOD_EMOJI = {
   cute: '🥰',
@@ -25,11 +32,35 @@ export default function CompanionBubble({ message, mood = 'cute', onPoke }) {
   const [isTyping, setIsTyping] = useState(false);
   const [visibleMessage, setVisibleMessage] = useState(message);
   const [pokeIndex, setPokeIndex] = useState(0);
+  const [avatarIdx, setAvatarIdx] = useState(0);
+  const [photoLoaded, setPhotoLoaded] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(true);
+
+  const imgRef = useRef(null);
+  const emojiTimerRef = useRef(null);
+
+  const triggerReactionEmoji = () => {
+    setShowEmoji(true);
+    if (emojiTimerRef.current) clearTimeout(emojiTimerRef.current);
+    emojiTimerRef.current = setTimeout(() => {
+      setShowEmoji(false);
+    }, 2200);
+  };
+
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current?.naturalWidth > 0) {
+      setPhotoLoaded(true);
+    }
+    return () => {
+      if (emojiTimerRef.current) clearTimeout(emojiTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!message) return;
     setIsOpen(true);
     setIsTyping(true);
+    triggerReactionEmoji();
 
     const timer = setTimeout(() => {
       setVisibleMessage(message);
@@ -47,9 +78,10 @@ export default function CompanionBubble({ message, mood = 'cute', onPoke }) {
       clearTimeout(timer);
       if (autoCollapseTimer) clearTimeout(autoCollapseTimer);
     };
-  }, [message]);
+  }, [message, mood]);
 
   const handleAvatarClick = () => {
+    triggerReactionEmoji();
     if (!isOpen) {
       setIsOpen(true);
       return;
@@ -62,6 +94,8 @@ export default function CompanionBubble({ message, mood = 'cute', onPoke }) {
       setVisibleMessage(nextMsg);
     }
   };
+
+  const currentAvatarSrc = avatarIdx < AVATAR_SOURCES.length ? AVATAR_SOURCES[avatarIdx] : null;
 
   return (
     <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end pointer-events-none select-none max-w-[calc(100vw-24px)] sm:max-w-sm">
@@ -115,7 +149,37 @@ export default function CompanionBubble({ message, mood = 'cute', onPoke }) {
         aria-label="Adarsh companion avatar"
         className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-blush-400 to-blush-600 shadow-lg border-2 border-white flex items-center justify-center pointer-events-auto cursor-pointer relative"
       >
-        <span className="text-xl sm:text-[28px]">{MOOD_EMOJI[mood] || '🥰'}</span>
+        <div className="w-full h-full rounded-full overflow-hidden relative flex items-center justify-center">
+          {currentAvatarSrc && (
+            <img
+              ref={imgRef}
+              src={currentAvatarSrc}
+              alt="Adarsh"
+              onLoad={() => setPhotoLoaded(true)}
+              onError={() => {
+                setPhotoLoaded(false);
+                setAvatarIdx((prev) => prev + 1);
+              }}
+              className="w-full h-full object-cover object-[50%_30%]"
+            />
+          )}
+
+          <AnimatePresence>
+            {(!photoLoaded || showEmoji) && (
+              <motion.span
+                key={`emoji-${mood}`}
+                initial={{ opacity: 0, scale: 0.65 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.65 }}
+                transition={{ duration: 0.25 }}
+                className="absolute inset-0 bg-gradient-to-tr from-blush-400 to-blush-600 flex items-center justify-center text-xl sm:text-[28px]"
+              >
+                {MOOD_EMOJI[mood] || '🥰'}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+
         <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blush-300 opacity-75" />
           <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-400 border-2 border-white" />

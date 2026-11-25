@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, Heart, Sparkles, Pause, Play } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -8,12 +8,17 @@ import confetti from 'canvas-confetti';
 import FloatingAmbient from '../components/FloatingAmbient';
 import HeartbeatWidget from '../components/HeartbeatWidget';
 import CompanionBubble from '../components/CompanionBubble';
+import StageTransition from '../components/StageTransition';
 import LoginScreen from '../components/LoginScreen';
 import StorySection from '../components/StorySection';
 import VibeCheckSection from '../components/VibeCheckSection';
 import KeystrokeBarrier from '../components/KeystrokeBarrier';
 import ProposalSection from '../components/ProposalSection';
 import LetterSection from '../components/LetterSection';
+import SmartPhoto, {
+  ADARSH_POLAROID_PHOTOS,
+  MANSHIKA_POLAROID_PHOTOS,
+} from '../components/SmartPhoto';
 import { useBGM } from '../context/BGMContext';
 
 const STAGES = ['LOGIN', 'STORY', 'VIBE_CHECK', 'KEYSTROKE_LOCK', 'PROPOSAL', 'SUCCESS'];
@@ -21,6 +26,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:500
 
 export default function Home() {
   const [screenState, setScreenState] = useState('LOGIN');
+  const [transitionTarget, setTransitionTarget] = useState(null);
   const [loginName, setLoginName] = useState('');
   const [quizAnswers, setQuizAnswers] = useState({});
   const [responseId, setResponseId] = useState(null);
@@ -32,11 +38,42 @@ export default function Home() {
     mood: 'cute',
   });
 
+  const transitionTimersRef = useRef([]);
   const { isMuted, toggleMute: toggleBGM } = useBGM();
 
   const updateCompanion = useCallback((text, mood = 'cute') => {
     setCompanionState({ text, mood });
   }, []);
+
+  const clearTransitionTimers = useCallback(() => {
+    transitionTimersRef.current.forEach((id) => clearTimeout(id));
+    transitionTimersRef.current = [];
+  }, []);
+
+  const transitionToStage = useCallback(
+    (nextStage) => {
+      clearTransitionTimers();
+      setTransitionTarget(nextStage);
+
+      const swapTimer = setTimeout(() => {
+        setScreenState(nextStage);
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+      }, 420);
+
+      const hideTimer = setTimeout(() => {
+        setTransitionTarget(null);
+      }, 1150);
+
+      transitionTimersRef.current = [swapTimer, hideTimer];
+    },
+    [clearTransitionTimers]
+  );
+
+  useEffect(() => {
+    return () => clearTransitionTimers();
+  }, [clearTransitionTimers]);
 
   useEffect(() => {
     if (screenState !== 'SUCCESS') return;
@@ -71,6 +108,7 @@ export default function Home() {
   return (
     <main className="flex-1 flex flex-col min-h-[100dvh] relative overflow-hidden">
       <FloatingAmbient isPaused={ambientPaused} />
+      <StageTransition targetStage={transitionTarget} />
 
       {/* Top HUD */}
       <header className="fixed top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-4 z-50 flex items-center justify-between pointer-events-none">
@@ -165,12 +203,12 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.25 }}
             >
               <LoginScreen
                 onLoginSuccess={(name) => {
                   setLoginName(name || '');
-                  setScreenState('STORY');
+                  transitionToStage('STORY');
                 }}
                 updateCompanion={updateCompanion}
               />
@@ -183,10 +221,10 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.25 }}
             >
               <StorySection
-                onProceed={() => setScreenState('VIBE_CHECK')}
+                onProceed={() => transitionToStage('VIBE_CHECK')}
                 updateCompanion={updateCompanion}
               />
             </motion.div>
@@ -198,12 +236,12 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.25 }}
             >
               <VibeCheckSection
                 onComplete={async (answers) => {
                   setQuizAnswers(answers);
-                  setScreenState('KEYSTROKE_LOCK');
+                  transitionToStage('KEYSTROKE_LOCK');
                   try {
                     const res = await fetch(`${BACKEND_URL.replace(/\/+$/, '')}/api/response`, {
                       method: 'POST',
@@ -237,10 +275,10 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.25 }}
             >
               <KeystrokeBarrier
-                onUnlock={() => setScreenState('PROPOSAL')}
+                onUnlock={() => transitionToStage('PROPOSAL')}
                 updateCompanion={updateCompanion}
               />
             </motion.div>
@@ -252,7 +290,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.25 }}
             >
               <ProposalSection
                 responseId={responseId}
@@ -260,7 +298,7 @@ export default function Home() {
                 quizAnswers={quizAnswers}
                 onResponseSaved={(id) => {
                   if (id) setResponseId(id);
-                  setScreenState('SUCCESS');
+                  transitionToStage('SUCCESS');
                 }}
                 updateCompanion={updateCompanion}
               />
@@ -278,8 +316,27 @@ export default function Home() {
                     showLetter ? 'lg:w-1/2' : 'max-w-xl'
                   } glass-strong p-5 sm:p-9 rounded-3xl border border-blush-200 text-center relative overflow-hidden`}
                 >
-                  <div className="w-20 h-20 bg-blush-100 rounded-full flex items-center justify-center mb-4 shadow-inner mx-auto border border-blush-200">
-                    <span className="text-4xl">🌸</span>
+                  {/* Dual Circular DPs */}
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-md bg-blush-100 -mr-2 relative z-10">
+                      <SmartPhoto
+                        sources={ADARSH_POLAROID_PHOTOS}
+                        alt="Adarsh"
+                        className="object-cover object-[52%_34%] scale-[1.38] origin-[52%_36%] brightness-[0.97] contrast-[0.95]"
+                        fallbackEmoji="😎"
+                      />
+                    </div>
+                    <div className="w-9 h-9 rounded-full bg-white border border-blush-200 shadow-md flex items-center justify-center z-20 anim-heart-pulse">
+                      <span className="text-base">💖</span>
+                    </div>
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-md bg-blush-100 -ml-2 relative z-10">
+                      <SmartPhoto
+                        sources={MANSHIKA_POLAROID_PHOTOS}
+                        alt="Manshika"
+                        className="object-cover object-[42%_50%]"
+                        fallbackEmoji="🌸"
+                      />
+                    </div>
                   </div>
 
                   <h1 className="text-3xl sm:text-4xl font-black font-serif text-blush-600 mb-3">
@@ -287,8 +344,34 @@ export default function Home() {
                   </h1>
 
                   <p className="text-gray-700 font-semibold text-base leading-relaxed">
-                    Friday 20 November ke pehle Instagram message se lekar aaj tak — bina mile aur bina aawaz sune hi yeh 5 din mere liye bahut special ban gaye, <strong>Manshika ji (Bandrr 🐒)</strong>!
+                    Friday 20 November ke pehle Instagram message se lekar aaj tak — bina mile aur bina aawaz sune hi yeh 6 din mere liye bahut special ban gaye, <strong>Manshika ji (Bandrr 🐒)</strong>!
                   </p>
+
+                  {/* Screenshot-worthy Official Pass */}
+                  <div className="mt-5 p-4 rounded-2xl bg-gradient-to-br from-white via-blush-50/90 to-purple-50/80 border-2 border-dashed border-blush-300 text-left shadow-sm">
+                    <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-blush-200/70">
+                      <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-blush-500">
+                        Official Pass ✨
+                      </span>
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blush-50 text-blush-600 border border-blush-200">
+                        Forever Vibes 💖
+                      </span>
+                    </div>
+
+                    <p className="text-base sm:text-lg font-extrabold font-serif text-blush-600">
+                      Adarsh × Manshika 🐒🌸
+                    </p>
+                    <p className="text-xs text-gray-600 font-medium mt-1">
+                      Bina shor-sharabe ke, ek pyaari si nayi shuruwat 🤍
+                    </p>
+
+                    {quizAnswers.firstDate && (
+                      <div className="mt-3 px-3 py-2 rounded-xl bg-white/85 border border-blush-100 text-xs">
+                        <span className="text-gray-400 font-bold block">Next Step Locked ✨</span>
+                        <span className="font-bold text-gray-800">{quizAnswers.firstDate}</span>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-blush-50/90 to-white/90 border border-blush-200 text-left space-y-1.5">
                     <p className="text-[11px] font-bold uppercase tracking-wider text-blush-500">
@@ -298,15 +381,6 @@ export default function Home() {
                       Ab se aapka khayal rakhna meri zimmedari hai — aur har sahi aur galat waqt mein aapka saath dena bhi meri hi zimmedari hai. Hamesha sirf aapke saath hu, Manshika! 🌸
                     </p>
                   </div>
-
-                  {quizAnswers.firstDate && (
-                    <div className="mt-5 p-4 rounded-2xl bg-blush-50/90 border border-blush-200 text-left">
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-blush-500 mb-1">
-                        Next Step Locked ✨
-                      </p>
-                      <p className="text-sm font-bold text-gray-800">{quizAnswers.firstDate}</p>
-                    </div>
-                  )}
 
                   <div className="mt-6 flex items-center justify-center gap-3">
                     <button
